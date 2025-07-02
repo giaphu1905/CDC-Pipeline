@@ -1,0 +1,16 @@
+# Kafka Performance Test with ClickHouse Monitoring Dependencies
+
+# Kafka client
+confluent-kafka>=2.3.0
+
+# ClickHouse client
+clickhouse-connect>=0.6.0
+
+# HTTP requests for Kafka Connect API
+requests>=2.31.0
+
+# System monitoring
+psutil>=5.9.0
+
+# Data structures (for Python < 3.7)
+dataclasses>=0.6; python_version<"3.7"
