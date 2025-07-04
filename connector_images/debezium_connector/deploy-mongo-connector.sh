@@ -17,23 +17,21 @@ curl -X POST http://localhost:8083/connectors \
       "mongodb.connection.string": "mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0",
       "topic.prefix": "cdc",
       "collection.include.list": "test.accounts",
-      "output.format.key": "json",
-      "output.format.value": "json",
+      "mongodb.name": "mongo_rs",
+      "snapshot.mode": "initial",
       "key.converter": "org.apache.kafka.connect.json.JsonConverter",
       "value.converter": "org.apache.kafka.connect.json.JsonConverter",
       "key.converter.schemas.enable": "false",
       "value.converter.schemas.enable": "false",
-      "mongodb.name": "mongo_rs",
-      "snapshot.mode": "initial",
-
+      
       "transforms": "unwrap, keyToField",
       "transforms.unwrap.type": "io.debezium.connector.mongodb.transforms.ExtractNewDocumentState",
       "transforms.unwrap.drop.tombstones": "true",
       "transforms.unwrap.delete.handling.mode": "rewrite",
       "transforms.unwrap.operation.header": "false",
       "transforms.unwrap.add.fields": "op,ts_ms",
-
       "transforms.keyToField.type": "com.github.eladleev.kafka.connect.transform.keytofield.KeyToFieldTransform"
     }
   }'
 echo "MongoDB Connector setup completed!"
+

@@ -19,13 +19,16 @@ curl -X POST http://localhost:8083/connectors -H 'Content-Type: application/json
       "database":"default",
       "username":"default",
       "password":"giaphu",
-      "key.converter":"org.apache.kafka.connect.json.JsonConverter",
-      "key.converter.schemas.enable":"false",
-      "value.converter":"org.apache.kafka.connect.json.JsonConverter",
-      "value.converter.schemas.enable":"false",
-      "auto.create.tables":"false"
+      "auto.create.tables":"false",
+      "auto.create.partitions":"true",
+      "topic.creation.default.partitions": "3",
+      "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+      "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+      "key.converter.schemas.enable": "false",
+      "value.converter.schemas.enable": "false"
     }
   }'
 
 echo ">>> ClickHouse Sink Connector setup completed."
+
 

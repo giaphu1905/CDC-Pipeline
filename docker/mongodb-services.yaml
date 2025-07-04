@@ -1,0 +1,99 @@
+services:
+  mongo1:
+    image: mongo:8.0
+    container_name: mongo1
+    ports:
+      - "27017:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      - mongo1_data:/data/db
+    restart: always
+    networks:
+      - mongo-net
+
+  mongo2:
+    image: mongo:8.0
+    container_name: mongo2
+    ports:
+      - "27018:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      - mongo2_data:/data/db
+    restart: always
+    networks:
+      - mongo-net
+
+  mongo3:
+    image: mongo:8.0
+    container_name: mongo3
+    ports:
+      - "27019:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      - mongo3_data:/data/db
+    restart: always
+    networks:
+      - mongo-net
+
+  mongo-init-replica:
+    image: mongo:8.0
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    entrypoint: >
+      bash -c '
+        echo "Waiting for MongoDB...";
+        sleep 10;
+        mongosh --host mongo1:27017 <<EOF
+          rs.initiate({
+            _id: "rs0",
+            members: [
+              { _id: 0, host: "mongo1:27017" },
+              { _id: 1, host: "mongo2:27017" },
+              { _id: 2, host: "mongo3:27017" }
+            ]
+          });
+        EOF
+      '
+    networks:
+      - mongo-net
+    
+  mongo-restore:
+    image: mongo:8.0
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+      - mongo-init-replica
+    volumes:
+      - ../dump:/dump
+    entrypoint: >
+      bash -c '
+        echo "Waiting for replica set to initialize...";
+        sleep 5;
+        mongorestore \
+          --uri="mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0" \
+          --db=test \
+          --collection=accounts \
+          dump/test/accounts.bson
+      '
+    networks:
+      - mongo-net
+
+  mongoku:
+    image: huggingface/mongoku
+    container_name: mongoku
+    ports:
+      - "3100:3100"
+    networks:
+      - mongo-net
+
+volumes:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:
+
+networks:
+  mongo-net:
+    driver: bridge

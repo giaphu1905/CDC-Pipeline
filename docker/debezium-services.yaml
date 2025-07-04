@@ -1,0 +1,35 @@
+include:
+  - kafka-services.yaml
+  - mongodb-services.yaml
+
+services:
+  debezium:
+    image: debezium-custom:latest
+    container_name: debezium
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - mongo1
+      - mongo2
+      - mongo3
+    ports:
+      - "8083:8083"
+    environment:
+      BOOTSTRAP_SERVERS: kafka1:9092,kafka2:9093,kafka3:9094
+      GROUP_ID: 3
+      CONFIG_STORAGE_TOPIC: debezium_configs
+      OFFSET_STORAGE_TOPIC: debezium_offsets
+      STATUS_STORAGE_TOPIC: debezium_statuses
+      CONFIG_STORAGE_REPLICATION_FACTOR: 3
+      OFFSET_STORAGE_REPLICATION_FACTOR: 3
+      STATUS_STORAGE_REPLICATION_FACTOR: 3
+      ENABLE_DEBEZIUM_SCRIPTING: "true"
+      #ENABLE_APICURIO_CONVERTERS: true
+    networks:
+      - mongo-net
+    restart: always
+    
+networks:
+  mongo-net:
+    driver: bridge

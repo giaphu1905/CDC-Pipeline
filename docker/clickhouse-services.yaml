@@ -1,0 +1,73 @@
+services:
+  clickhouse:
+    image: clickhouse:25.5.3.75
+    container_name: clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./init-clickhouse.sql:/docker-entrypoint-initdb.d/init-clickhouse.sql
+    environment:
+      - CLICKHOUSE_DB=default
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=giaphu
+    restart: always
+    networks:
+      - mongo-net
+
+  clickhouse-init:
+    image: clickhouse/clickhouse-client:latest
+    container_name: clickhouse-init
+    depends_on:
+      - clickhouse
+    restart: "no"
+    volumes:
+      - ./init-clickhouse.sql:/init-clickhouse.sql
+    entrypoint: >
+      bash -c '
+        echo "Waiting for ClickHouse to be ready...";
+        sleep 15;
+        clickhouse-client --host clickhouse --port 9000 --user default --password giaphu --multiquery < /init-clickhouse.sql;
+        echo "ClickHouse tables initialized successfully!";
+      '
+    networks:
+      - mongo-net
+
+  clickhouse-connector:
+    image: clickhouse-sink-custom:latest
+    container_name: clickhouse-sink
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - clickhouse
+      - clickhouse-init
+    ports:
+      - "8084:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka1:9092,kafka2:9093,kafka3:9094
+      CONNECT_GROUP_ID: clickhouse-sink
+      CONNECT_REST_ADVERTISED_HOST_NAME: clickhouse-connector
+      CONNECT_CONFIG_STORAGE_TOPIC: clickhouse_configs
+      CONNECT_OFFSET_STORAGE_TOPIC: clickhouse_offsets
+      CONNECT_STATUS_STORAGE_TOPIC: clickhouse_statuses
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 3
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 3
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 3
+      CONNECT_OFFSET_STORAGE_PARTITIONS: 25
+      CONNECT_CONFIG_STORAGE_PARTITIONS: 1
+      CONNECT_STATUS_STORAGE_PARTITIONS: 5
+      CONNECT_TOPIC_CREATION_ENABLE: "true"
+      #ENABLE_APICURIO_CONVERTERS: true
+    networks:
+      - mongo-net
+
+volumes:
+  clickhouse_data:
+
+networks:
+  mongo-net:
+    driver: bridge

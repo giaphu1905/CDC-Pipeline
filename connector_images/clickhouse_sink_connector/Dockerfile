@@ -6,7 +6,9 @@ USER root
 # Copy ClickHouse connector và Debezium SMT (nếu có)
 COPY clickhouse-connector/*.jar /usr/share/java/kafka-connect-clickhouse/
 
-
+RUN mkdir -p /usr/share/java/apicurio-registry/
+RUN curl -L -o /usr/share/java/apicurio-registry/apicurio-registry-utils-converter-3.0.9-fat.jar \
+    https://repo1.maven.org/maven2/io/apicurio/apicurio-registry-utils-converter/3.0.9/apicurio-registry-utils-converter-3.0.9-fat.jar
 # Copy script deploy connector
 COPY clickhouse_connector.sh /opt/clickhouse_connector.sh
 RUN chmod +x /opt/clickhouse_connector.sh

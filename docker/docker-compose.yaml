@@ -1,0 +1,24 @@
+include:
+  - kafka-services.yaml
+  - mongodb-services.yaml
+  - clickhouse-services.yaml
+  - analytics-services.yaml
+  - debezium-services.yaml
+
+volumes:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:
+  clickhouse_data:
+  metabase-data:
+  adminmongo-data:
+  pg_data: {}
+  conduktor_data: {}
+  kafka1_data:
+  kafka2_data:
+  kafka3_data:
+  bytebase_data:
+
+networks:
+  mongo-net:
+    driver: bridge
