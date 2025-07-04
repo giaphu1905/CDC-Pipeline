@@ -10,6 +10,14 @@ services:
     restart: always
     networks:
       - mongo-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 
   mongo2:
     image: mongo:8.0
@@ -22,6 +30,14 @@ services:
     restart: always
     networks:
       - mongo-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 
   mongo3:
     image: mongo:8.0
@@ -34,6 +50,14 @@ services:
     restart: always
     networks:
       - mongo-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 
   mongo-init-replica:
     image: mongo:8.0
@@ -76,7 +100,12 @@ services:
           --uri="mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0" \
           --db=test \
           --collection=accounts \
-          dump/test/accounts.bson
+          dump/test/accounts.bson;
+        mongorestore \
+          --uri="mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0" \
+          --db=test \
+          --collection=accounts2 \
+          dump/test/accounts.bson;
       '
     networks:
       - mongo-net
@@ -88,6 +117,14 @@ services:
       - "3100:3100"
     networks:
       - mongo-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
 
 volumes:
   mongo1_data:

@@ -7,7 +7,17 @@ CREATE TABLE IF NOT EXISTS `default`.`cdc.test.accounts` (
     __op String,
     __ts_ms UInt64
 ) ENGINE = MergeTree
-ORDER BY __ts_ms;
+ORDER BY (kafkaKey,__ts_ms);
+
+CREATE TABLE IF NOT EXISTS `default`.`cdc.test.accounts2` (
+    kafkaKey String,
+    account_id UInt64,
+    limit Int64,
+    products Array(String),
+    __op String,
+    __ts_ms UInt64
+) ENGINE = MergeTree
+ORDER BY (kafkaKey,__ts_ms);
 
 -- Create the target accounts table with ReplacingMergeTree
 CREATE TABLE IF NOT EXISTS default.accounts (
@@ -20,8 +30,18 @@ CREATE TABLE IF NOT EXISTS default.accounts (
 ) ENGINE = ReplacingMergeTree()
 ORDER BY _id;
 
+CREATE TABLE IF NOT EXISTS default.accounts2 (
+    `_id` String,
+    `account_id` UInt64,
+    `limit` Int64,
+    `products` Array(String),
+    `ts_ms` UInt64,
+    `is_deleted` UInt8
+) ENGINE = ReplacingMergeTree()
+ORDER BY _id;
+
 -- Create the materialized view to transform CDC data
-CREATE MATERIALIZED VIEW IF NOT EXISTS default.accounts_mv_2 TO default.accounts
+CREATE MATERIALIZED VIEW IF NOT EXISTS default.accounts_mv TO default.accounts
 AS SELECT
     kafkaKey AS _id,
     account_id,
@@ -30,3 +50,15 @@ AS SELECT
     __ts_ms AS ts_ms,
     if(__op = 'd', 1, 0) AS is_deleted
 FROM default.`cdc.test.accounts`;
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS default.accounts_mv2 TO default.accounts2
+AS SELECT
+    kafkaKey AS _id,
+    account_id,
+    limit,
+    products,
+    __ts_ms AS ts_ms,
+    if(__op = 'd', 1, 0) AS is_deleted
+FROM default.`cdc.test.accounts2`;
+
+

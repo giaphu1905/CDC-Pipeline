@@ -13,6 +13,14 @@ services:
     restart: always
     networks:
       - mongo-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
   bytebase:
     image: bytebase/bytebase:latest
@@ -28,6 +36,14 @@ services:
     restart: always
     networks:
       - mongo-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
 volumes:
   metabase-data:

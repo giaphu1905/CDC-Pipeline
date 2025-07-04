@@ -16,7 +16,7 @@ curl -X POST http://localhost:8083/connectors \
       "tasks.max": "1",
       "mongodb.connection.string": "mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0",
       "topic.prefix": "cdc",
-      "collection.include.list": "test.accounts",
+      "mongodb.include.db.names": "test",
       "mongodb.name": "mongo_rs",
       "snapshot.mode": "initial",
       "key.converter": "org.apache.kafka.connect.json.JsonConverter",

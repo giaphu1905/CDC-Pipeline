@@ -15,6 +15,14 @@ services:
     restart: always
     networks:
       - mongo-net
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
 
   clickhouse-init:
     image: clickhouse/clickhouse-client:latest
@@ -62,8 +70,19 @@ services:
       CONNECT_STATUS_STORAGE_PARTITIONS: 5
       CONNECT_TOPIC_CREATION_ENABLE: "true"
       #ENABLE_APICURIO_CONVERTERS: true
+      KAFKA_HEAP_OPTS: "-Xmx1g -Xms1g"
+      KAFKA_JVM_PERFORMANCE_OPTS: "-server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -Djava.awt.headless=true"
     networks:
       - mongo-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 2g
+        reservations:
+          cpus: '1.0'
+          memory: 1g
+
 
 volumes:
   clickhouse_data:

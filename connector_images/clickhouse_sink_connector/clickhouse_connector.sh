@@ -13,7 +13,7 @@ curl -X POST http://localhost:8083/connectors -H 'Content-Type: application/json
     "config":{
       "connector.class":"com.clickhouse.kafka.connect.ClickHouseSinkConnector",
       "tasks.max":"6",
-      "topics":"cdc.test.accounts",
+      "topics":"cdc.test.accounts,cdc.test.accounts2",
       "hostname":"clickhouse",
       "port":"8123",
       "database":"default",
